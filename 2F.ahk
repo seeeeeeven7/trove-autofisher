@@ -108,7 +108,7 @@ AutoFish:
         TotalWaiting += FH_CheckInterval
         ; Detect Error
         if (Flag_Fishing and !isFishing()) {
-            MsgBox, "Fishing Failed! Check Camera, Bag or Lures."
+            ;MsgBox, "Fishing Failed! Check Camera, Bag or Lures."
         }
     }
 Return
