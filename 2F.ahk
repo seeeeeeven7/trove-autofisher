@@ -2,6 +2,7 @@
 
 ; Global Constaints
 global FishAddress := "0x00F02AD4"
+global FishAddressBase := "0x00F02BD4"
 global HK_SwitchFisher := "F11"
 global HK_Info := "F8"
 global HK_Exit := "F6"
@@ -22,6 +23,11 @@ global LureCount := 0
 global Waiting := 0
 global TotalWaiting := 0
 
+global Base := 0
+global WaterAddr := 0
+global ChocoAddr := 0
+global ChocoFishingAddr := 0
+
 ; Show Tooltip
 CoordMode, ToolTip, Screen
 UpdateTooltip()
@@ -35,11 +41,12 @@ Return
 L_SwitchFisher: ; Switch autofisher status
     if (isFishing) {
         isFishing := false
+        UpdateTooltip()
     } else {
         isFishing := true
+        UpdateTooltip()
         SetTimer, AutoFish, -1
     }
-    UpdateTooltip()
 Return
 
 L_Info: ; Toggle tooltip
@@ -62,12 +69,16 @@ AutoFish:
     Handle := hwnds
 
     Base := getProcessBaseAddress()
+    WaterAddr := AddrW()
+    ChocoAddr := AddrC()
+    ChocoFishingAddr := AddrCF()
 
     Press("f", pid)
     LureCount += 1
-    while (isFishing && LureCount < FH_MaxLureAmount) {
+    Waiting := 0
+    while (isFishing and LureCount < FH_MaxLureAmount) {
         ; Check
-        if (Waiting >= FH_MinWaitTime && isHooked(Base)) {
+        if (Waiting >= FH_MinWaitTime and isHooked(Base)) {
             ; Wait before pull
             Random, Wait, 1000, 2000
             Sleep, Wait
@@ -103,9 +114,9 @@ NatualSleep() {
 }
 
 Press(npbtn, nppid) {
-    ControlSend, , {%npbtn% down}, ahk_pid %nppid%
+    ControlSend, , {Blind}{%npbtn% down}, ahk_pid %nppid%
     NatualSleep()
-    ControlSend, , {%npbtn% up}, ahk_pid %nppid%
+    ControlSend, , {Blind}{%npbtn% up}, ahk_pid %nppid%
     NatualSleep()
 }
 
@@ -120,12 +131,24 @@ getProcessBaseAddress() {
     ; if DLL call fails, returned value will = 0
 }
 
-AddrW(Base, Address) {
-    pointerBase := Base + Address
+AddrW() {
+    pointerBase := Base + FishAddress
     y1 := ReadMemory(pointerBase)
     y2 := ReadMemory(y1 + 0x8)
     y3 := ReadMemory(y2 + 0x1B4)
-    Return WaterAddress := (y3 + 0x22C) 
+    Return y3 + 0x22C
+}
+
+AddrC() {
+    pointerBase := Base + FishAddressBase
+    y1 := ReadMemory(pointerBase)
+    y2 := ReadMemory(y1 + 0xE0)
+    y3 := ReadMemory(y2 + 0x324)
+    Return y3 + 0x78
+}
+
+AddrCF() {
+    Return AddrC() - 0xAA0
 }
 
 ReadMemory(MADDRESS) {
@@ -140,8 +163,9 @@ ReadMemory(MADDRESS) {
 }
 
 isHooked(Base) {
-    SignW := ReadMemory(AddrW(Base, FishAddress))
-    return SignW
+    SignW := ReadMemory(WaterAddr)
+    SignC := ReadMemory(ChocoAddr)
+    return SignW or SignC
 }
 
 UpdateTooltip() {
@@ -151,7 +175,7 @@ UpdateTooltip() {
 
         autoFisherStatus := "`n"
         if (isFishing) {
-            autoFisherStatus .= "AutoFisher : ON"    
+            autoFisherStatus .= "AutoFisher : ON"
         }
         else {
             autoFisherStatus .= "AutoFisher : OFF"
@@ -160,6 +184,17 @@ UpdateTooltip() {
         autoFisherStatus .= "`n" . "Current Wait : " . Floor(Waiting / 1000)
         autoFisherStatus .= "`n" . "Total Wait : " . Floor(TotalWaiting / 1000)
         TooltipText .= autoFisherStatus
+
+        ; DEBUG INFO
+
+        TooltipText .= "`n[DEBUF INFO]"
+        TooltipText .= "`nBaseAddr : " . Base
+        SetFormat, Integer, H
+        TooltipText .= "`nWaterAddr : " . WaterAddr
+        SetFormat, Integer, H
+        TooltipText .= "`nChocoAddr : " . ChocoAddr
+        TooltipText .= "`nChocoFishing : " . ChocoFishingAddr . " " . ReadMemory(ChocoFishingAddr)
+        SetFormat, Integer, D
 
         Tooltip, %TooltipText%, TooltipX, TooltipY
     }
