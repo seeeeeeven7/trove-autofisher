@@ -82,6 +82,7 @@ AutoFish:
     PlasmaFishingAddr := PlasmaAddr - 0x1674
 
     ; Fishing
+    ErrorWaiting := 1000
     while (Flag_Fishing and LureCount < FH_MaxLureAmount) {
         ; Check
         if (isHooked()) {
@@ -108,10 +109,13 @@ AutoFish:
         TotalWaiting += FH_CheckInterval
         ; Detect Error
         if (Flag_Fishing and !isFishing()) {
-            Random, Wait, 1000, 2000
-            Sleep, Wait
-            TotalWaiting += Wait
+            Sleep, ErrorWaiting
+            ErrorWaiting *= 2
+            TotalWaiting += ErrorWaiting
             ;MsgBox, "Fishing Failed! Check Camera, Bag or Lures."
+        }
+        else {
+            ErrorWaiting = 1000
         }
     }
 Return
