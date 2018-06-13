@@ -108,6 +108,9 @@ AutoFish:
         TotalWaiting += FH_CheckInterval
         ; Detect Error
         if (Flag_Fishing and !isFishing()) {
+            Random, Wait, 1000, 2000
+            Sleep, Wait
+            TotalWaiting += Wait
             ;MsgBox, "Fishing Failed! Check Camera, Bag or Lures."
         }
     }
