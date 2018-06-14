@@ -8,7 +8,6 @@ global HK_Exit := "F6"
 
 global FH_MinWaitTime := 10000
 global FH_CheckInterval := 500
-global FH_MaxLureAmount := 9999
 
 global TooltipX := 200
 global TooltipY := 200
@@ -83,7 +82,7 @@ AutoFish:
 
     ; Fishing
     ErrorWaiting := 1000
-    while (Flag_Fishing and LureCount < FH_MaxLureAmount) {
+    while (Flag_Fishing) {
         ; Check
         if (isHooked()) {
             ; Wait before pull
@@ -109,10 +108,14 @@ AutoFish:
         TotalWaiting += FH_CheckInterval
         ; Detect Error
         if (Flag_Fishing and !isFishing()) {
-            Sleep, ErrorWaiting
+            ErrorWaitingRest := ErrorWaiting
+            while (Flag_Fishing and ErrorWaitingRest > 0) {
+                Sleep, FH_CheckInterval
+                TotalWaiting += FH_CheckInterval
+                UpdateTooltip()
+                ErrorWaitingRest -= FH_CheckInterval
+            }
             ErrorWaiting *= 2
-            TotalWaiting += ErrorWaiting
-            ;MsgBox, "Fishing Failed! Check Camera, Bag or Lures."
         }
         else {
             ErrorWaiting = 1000
