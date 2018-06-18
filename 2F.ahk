@@ -5,12 +5,13 @@ global FishAddressBase := "0x00F02BD4"
 global HK_SwitchFisher := "F11"
 global HK_Info := "F8"
 global HK_Exit := "F6"
+global HK_RecordLocation := "F2"
 
 global FH_MinWaitTime := 10000
 global FH_CheckInterval := 500
 
-global TooltipX := 200
-global TooltipY := 200
+global TooltipX := 100
+global TooltipY := 100
 
 ; Global Variables
 global Flag_Fishing := false
@@ -28,14 +29,23 @@ global ChocoFishingAddr := 0
 global LavaFishingAddr := 0
 global PlasmaFishingAddr := 0
 
+global RX1 := 0
+global RY1 := 0
+global RX2 := 0
+global RY2 := 0
+global RX3 := 0
+global RY3 := 0
+
 ; Show Tooltip
 CoordMode, ToolTip, Screen
+CoordMode, Mouse, Relative
 UpdateTooltip()
 
 ; Bind Hotkeys
 HotKey, %HK_SwitchFisher%, L_SwitchFisher
 Hotkey, %HK_Info%, L_Info
 Hotkey, %HK_Exit%, L_Exit
+HotKey, %HK_RecordLocation%, L_RecordLocation
 Return
 
 L_SwitchFisher: ; Switch autofisher status
@@ -61,6 +71,15 @@ Return
 
 L_Exit: ; Stop the script
 ExitApp
+
+L_RecordLocation: ; Record Mouse Location
+    RX1 := RX2
+    RY1 := RY2
+    RX2 := RX3
+    RY2 := RY3
+    MouseGetPos, RX3, RY3
+    UpdateTooltip()
+Return
 
 AutoFish:
     ; Get Process Info
@@ -106,8 +125,18 @@ AutoFish:
         UpdateTooltip()
         Sleep, FH_CheckInterval
         TotalWaiting += FH_CheckInterval
+
         ; Detect Error
         if (Flag_Fishing and !isFishing()) {
+            ; Try Destroy
+            WinGet, pidn, PID, A
+            if (pid = pidn) {
+                Random, MouseSpeed, 4, 10
+                MouseClickDrag, Left, %RX1%, %RY1%, %RX2%, %RY2%, MouseSpeed
+                MouseMove %RX3%, %RY3%, MouseSpeed
+                MouseClick, Left, %RX3%, %RY3%    
+            }
+            ; Dynamic Delay
             ErrorWaitingRest := ErrorWaiting
             while (Flag_Fishing and ErrorWaitingRest > 0) {
                 Sleep, FH_CheckInterval
@@ -259,6 +288,12 @@ UpdateTooltip() {
         autoFisherStatus .= ":" . (StrLen(ss) = 1 ? "0" : "") . ss
         TooltipText .= autoFisherStatus
 
+        ; Deletion Positions
+        TooltipText .= "`n`n[Mouse Position Stack]"
+        TooltipText .= "`n(" . RX1 . ", " . RY1 . ")"
+        TooltipText .= "`n(" . RX2 . ", " . RY2 . ")"
+        TooltipText .= "`n(" . RX3 . ", " . RY3 . ")"
+
         ; DEBUG INFO
 
         ; TooltipText .= "`n`n`n[DEBUF INFO]"
@@ -272,9 +307,10 @@ UpdateTooltip() {
         ; SetFormat, Integer, D
 
         ; Operation
-        TooltipText .= "`n`n"
+        TooltipText .= "`n"
         TooltipText .= "`n[F11] : Trun On/Off AutoFisher"
         TooltipText .= "`n[F8] : Trun On/Off Tooltip"
+        TooltipText .= "`n[F2] : Push Current Mouse Position into Stack"
         TooltipText .= "`n[F6] : Close Program"
 
         Tooltip, %TooltipText%, TooltipX, TooltipY
