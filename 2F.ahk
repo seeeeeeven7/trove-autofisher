@@ -5,7 +5,7 @@ global FishAddressBase := "0x00F02BD4"
 global HK_SwitchFisher := "F11"
 global HK_Info := "F8"
 global HK_Exit := "F6"
-global HK_RecordLocation := "F2"
+global HK_RecordLocation := "F3"
 
 global FH_MinWaitTime := 10000
 global FH_CheckInterval := 500
@@ -310,7 +310,7 @@ UpdateTooltip() {
         TooltipText .= "`n"
         TooltipText .= "`n[F11] : Trun On/Off AutoFisher"
         TooltipText .= "`n[F8] : Trun On/Off Tooltip"
-        TooltipText .= "`n[F2] : Push Current Mouse Position into Stack"
+        TooltipText .= "`n[" . HK_RecordLocation . "] : Push Current Mouse Position into Stack"
         TooltipText .= "`n[F6] : Close Program"
 
         Tooltip, %TooltipText%, TooltipX, TooltipY
