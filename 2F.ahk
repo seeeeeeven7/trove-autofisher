@@ -1,17 +1,17 @@
 #WinActivateForce
+#Include Memory.ahk
 
 ; Global Constaints
 global FishAddressBase := "0x00F02BD4"
 global HK_SwitchFisher := "F11"
-global HK_Info := "F8"
+global HK_SwitchTooltip := "F8"
 global HK_Exit := "F6"
 global HK_RecordLocation := "F3"
 
-global FH_MinWaitTime := 10000
-global FH_CheckInterval := 500
-
 global TooltipX := 100
 global TooltipY := 100
+
+global World_Moment := 500
 
 ; Global Variables
 global Flag_Fishing := false
@@ -19,89 +19,26 @@ global Flag_Tooltip := true
 global LureCount := 0
 global TotalWaiting := 0
 
-global Base := 0
-global WaterAddr := 0
-global ChocoAddr := 0
-global LavaAddr := 0
-global PlasmaAddr := 0
-global WaterFishingAddr := 0
-global ChocoFishingAddr := 0
-global LavaFishingAddr := 0
-global PlasmaFishingAddr := 0
-
-global RX1 := 0
-global RY1 := 0
-global RX2 := 0
-global RY2 := 0
-global RX3 := 0
-global RY3 := 0
-
 ; Show Tooltip
 CoordMode, ToolTip, Screen
-CoordMode, Mouse, Relative
+CoordMode, Mouse, Client
+CoordMode, Window, Client
 UpdateTooltip()
 
 ; Bind Hotkeys
 HotKey, %HK_SwitchFisher%, L_SwitchFisher
-Hotkey, %HK_Info%, L_Info
+Hotkey, %HK_SwitchTooltip%, L_SwitchTooltip
 Hotkey, %HK_Exit%, L_Exit
 HotKey, %HK_RecordLocation%, L_RecordLocation
-Return
 
-L_SwitchFisher: ; Switch autofisher status
+; World
+global ErrorWaiting := 1000
+while (True) {
+    GetProcessInfo()
+
+    ; Auto Fishing
+    just_throw := false
     if (Flag_Fishing) {
-        Flag_Fishing := false
-        UpdateTooltip()
-    } else {
-        Flag_Fishing := true
-        UpdateTooltip()
-        SetTimer, AutoFish, -1
-    }
-Return
-
-L_Info: ; Toggle tooltip
-    if (Flag_Tooltip) {
-        Flag_Tooltip := false
-        ToolTip
-    } else {
-        Flag_Tooltip := true
-        UpdateTooltip()
-    }
-Return
-
-L_Exit: ; Stop the script
-ExitApp
-
-L_RecordLocation: ; Record Mouse Location
-    RX1 := RX2
-    RY1 := RY2
-    RX2 := RX3
-    RY2 := RY3
-    MouseGetPos, RX3, RY3
-    UpdateTooltip()
-Return
-
-AutoFish:
-    ; Get Process Info
-    WinGet, pidn, PID, A
-    pid := pidn
-    WinGet, hwnds, ID, A
-    Handle := hwnds
-
-    ; Get Memory Address Info
-    Base := getProcessBaseAddress()
-    WaterAddr := AddrW()
-    WaterFishingAddr := WaterAddr - 0xAA0
-    ChocoAddr := AddrC()
-    ChocoFishingAddr := ChocoAddr - 0xAA0
-    LavaAddr := AddrL()
-    LavaFishingAddr := LavaAddr - 0x11B8
-    PlasmaAddr := AddrP()
-    PlasmaFishingAddr := PlasmaAddr - 0x1674
-
-    ; Fishing
-    ErrorWaiting := 1000
-    while (Flag_Fishing) {
         ; Check
         if (isHooked()) {
             ; Wait before pull
@@ -121,39 +58,80 @@ AutoFish:
         if (Flag_Fishing and !isFishing()) {
             Press("f", pid)
             LureCount += 1
-        }
-        UpdateTooltip()
-        Sleep, FH_CheckInterval
-        TotalWaiting += FH_CheckInterval
-
-        ; Detect Error
-        if (Flag_Fishing and !isFishing()) {
-            ; Try Destroy
-            WinGet, pidn, PID, A
-            if (pid = pidn) {
-                Random, MouseSpeed, 4, 10
-                MouseClickDrag, Left, %RX1%, %RY1%, %RX2%, %RY2%, MouseSpeed
-                MouseMove %RX3%, %RY3%, MouseSpeed
-                MouseClick, Left, %RX3%, %RY3%    
-            }
-            ; Dynamic Delay
-            ErrorWaitingRest := ErrorWaiting
-            while (Flag_Fishing and ErrorWaitingRest > 0) {
-                Sleep, FH_CheckInterval
-                TotalWaiting += FH_CheckInterval
-                UpdateTooltip()
-                ErrorWaitingRest -= FH_CheckInterval
-            }
-            ErrorWaiting *= 2
-        }
-        else {
-            ErrorWaiting = 1000
+            just_throw := true
         }
     }
+
+    UpdateTooltip()
+    Sleep, World_Moment
+    if (Flag_Fishing) {
+        TotalWaiting += World_Moment   
+    }
+
+    ; Detect Error
+    if (Flag_Fishing and just_throw and !isFishing()) {
+        ; Try Destroy
+        if (SomeWindowIsShown()) {
+            ControlSend, , {ESC}, ahk_pid %pid%
+            NatualSleep()
+        }
+        Press("b", pid)
+        NatualSleep()
+        ; Drop Last Item
+
+        GetClientSize(Width, Height)
+        ; WinGetPos, X_, Y_, Width_, Height_, ahk_exe trove.exe
+        X0 := max(Width / 1.4, Width - Height / 2, Width - 384)
+        W0 := Width - X0
+        Y0 := Height / 2 - W0
+        H0 := Height - Y0 * 2
+        X1 := X0 + 0.8 * W0
+        Y1 := Y0 + 0.81  * H0
+        X2 := X0 + 0.78 * W0
+        Y2 := Y0 + 0.91 * H0
+        ; MsgBox, %X0% . "," . %Y0%
+
+
+        Random, MouseSpeed, 4, 10
+        MouseClickDrag, Left, %X1%, %Y1%, %X2%, %Y2%, MouseSpeed
+        ; MouseMove %X1%, %Y1%, MouseSpeed
+        ; MouseClick, Left, %RX3%, %RY3%
+        ; Dynamic Delay
+        ErrorWaitingRest := ErrorWaiting
+        while (Flag_Fishing and ErrorWaitingRest > 0) {
+            Sleep, World_Moment
+            TotalWaiting += World_Moment
+            UpdateTooltip()
+            ErrorWaitingRest -= World_Moment
+        }
+        ErrorWaiting *= 2
+    }
+    else {
+        ErrorWaiting := 1000
+    }
+}
 Return
 
+L_Exit:
+ExitApp
 
-UpdateTimer:
+L_SwitchFisher: ; Switch Autofisher Status
+    Flag_Fishing ^= 1
+    ErrorWaiting := 1000
+    UpdateTooltip()
+Return
+
+L_SwitchTooltip: ; Switch Tooltip status
+    Flag_Tooltip ^= 1
+    UpdateTooltip()
+Return
+
+L_RecordLocation: ; Record Mouse Location
+    RX1 := RX2
+    RY1 := RY2
+    RX2 := RX3
+    RY2 := RY3
+    MouseGetPos, RX3, RY3
     UpdateTooltip()
 Return
 
@@ -169,150 +147,68 @@ Press(npbtn, nppid) {
     NatualSleep()
 }
 
-ReadMemory(MADDRESS) {
-    global pid
-    VarSetCapacity(MVALUE,4,0)
-    ProcessHandle := DllCall("OpenProcess", "Int", 24, "Char", 0, "UInt", pid, "UInt")
-    ;DllCall("ReadProcessMemory", "UInt", ProcessHandle, "UInt", MADDRESS, "Str", MVALUE, "UInt", 4, "UInt *", 0)
-    DllCall("ReadProcessMemory", "UInt", ProcessHandle, "Ptr", MADDRESS, "Ptr", &MVALUE, "Uint", 4)
-    Loop 4
-    result += *(&MVALUE + A_Index-1) << 8*(A_Index-1)
-    return, result
+; ToolTip Generation
+
+AutoFisherStatus() {
+    autoFisherStatus := "Game : " . (GameIsRunning() ? "Running" : "Not Running")
+    ; AutoFisher Status
+    autoFisherStatus .= "`n`n[AutoFisher : " . (Flag_Fishing ? "ON" : "OFF") . "]"
+    if (Flag_Fishing) {
+        ; Fishing Status
+        autoFisherStatus .= "`nFishing Status : " . (IsHooked() ? "Hooked" : (isFishing() ? "Waiting" : "zzZ"))
+        ; Fishing Area
+        if (GetFishingArea() <> "Unknown") {
+            autoFisherStatus .= " in " . GetFishingArea()        
+        }
+    }
+    ; Other Statistics
+    autoFisherStatus .= "`n" . "Lure Used : " . LureCount
+    hh := Floor(TotalWaiting / 1000 / 3600)
+    mm := Floor(Mod(TotalWaiting / 1000, 3600) / 60)
+    ss := Floor(Mod(TotalWaiting / 1000, 60))
+    autoFisherStatus .= "`n" . "Total Wait : " . (StrLen(hh) = 1 ? "0" : "") . hh 
+    autoFisherStatus .= ":" . (StrLen(mm) = 1 ? "0" : "") . mm
+    autoFisherStatus .= ":" . (StrLen(ss) = 1 ? "0" : "") . ss
+    return autoFisherStatus
 }
 
-getProcessBaseAddress() {
-    global Handle
-    return DllCall( A_PtrSize = 4
-        ? "GetWindowLong"
-        : "GetWindowLongPtr"
-        , "Ptr", Handle
-        , "Int", -6
-        , "Int64") ; Use Int64 to prevent negative overflow when AHK is 32 bit and target process is 64bit
-    ; if DLL call fails, returned value will = 0
-}
-
-AddrW() {
-    pointerBase := Base + FishAddressBase
-    y1 := ReadMemory(pointerBase)
-    y2 := ReadMemory(y1 + 0xE0)
-    y3 := ReadMemory(y2 + 0xC8)
-    Return y3 + 0x78
-}
-
-AddrC() {
-    pointerBase := Base + FishAddressBase
-    y1 := ReadMemory(pointerBase)
-    y2 := ReadMemory(y1 + 0xE0)
-    y3 := ReadMemory(y2 + 0x324)
-    Return y3 + 0x78
-}
-
-AddrL() {
-    pointerBase := Base + FishAddressBase
-    y1 := ReadMemory(pointerBase)
-    y2 := ReadMemory(y1 + 0xE0)
-    y3 := ReadMemory(y2 + 0x324)
-    Return y3 + 0x2D8
-}
-
-AddrP() {
-    pointerBase := Base + FishAddressBase
-    y1 := ReadMemory(pointerBase)
-    y2 := ReadMemory(y1 + 0xE0)
-    y3 := ReadMemory(y2 + 0x7E0)
-    Return y3 + 0x78
-}
-
-isFishing() {
-    SignW := ReadMemory(WaterFishingAddr)
-    SignC := ReadMemory(ChocoFishingAddr)
-    SignL := ReadMemory(LavaFishingAddr)
-    SignP := ReadMemory(PlasmaFishingAddr)
-    return SignW or SignC or SignL or SignP
-}
-
-isHooked() {
-    SignW := ReadMemory(WaterAddr)
-    SignC := ReadMemory(ChocoAddr)
-    SignL := ReadMemory(LavaAddr)
-    SignP := ReadMemory(PlasmaAddr)
-    return SignW or SignC or SignL or SignP
+DebugInfo() {
+    debugInfo := "[DEBUF INFO]"
+    debugInfo .= "`nSomeWindowIsShown : " . (SomeWindowIsShown() ? "YES" : "NO")
+    global Width
+    global Height
+    w := Width
+    debugInfo .= "`nWidth : " . %w%
+    debugInfo .= "`nHeight : " . %Height%
+    return debugInfo
 }
 
 UpdateTooltip() {
     if (Flag_Tooltip) {
-
         TooltipText := "[YoRHa No.2 Type F]"
 
-        autoFisherStatus := ""
-        ; Status
-        if (Flag_Fishing) {
-            autoFisherStatus .= "`nAutoFisher : ON"
-            ; Fishing Area
-            if (ReadMemory(WaterFishingAddr)) {
-                autoFisherStatus .= "`nFishing Area : Water"
-            }
-            else if (ReadMemory(ChocoFishingAddr)) {
-                autoFisherStatus .= "`nFishing Area : Chocolate"
-            }
-            else if (ReadMemory(LavaFishingAddr)) {
-                autoFisherStatus .= "`nFishing Area : Lava"
-            }
-            else if (ReadMemory(PlasmaFishingAddr)) {
-                autoFisherStatus .= "`nFishing Area : Plasma"
-            }
-            else {
-                autoFisherStatus .= "`nFishing Area : Unknown"   
-            }
-            ; Fishing Status
-            if (isHooked()) {
-                autoFisherStatus .= "`nFishing Status : Pulling"
-            }
-            else if (isFishing()) {
-                autoFisherStatus .= "`nFishing Status : Waiting"
-            }
-            else {
-                autoFisherStatus .= "`nFishing Status : zzZ"
-            }
-        }
-        else {
-            autoFisherStatus .= "`nAutoFisher : OFF"
-        }
-        ; Statistics
-        autoFisherStatus .= "`n" . "Lure Used : " . LureCount
-        hh := Floor(TotalWaiting / 1000 / 3600)
-        mm := Floor(Mod(TotalWaiting / 1000, 3600) / 60)
-        ss := Floor(Mod(TotalWaiting / 1000, 60))
-        autoFisherStatus .= "`n" . "Total Wait : " . (StrLen(hh) = 1 ? "0" : "") . hh 
-        autoFisherStatus .= ":" . (StrLen(mm) = 1 ? "0" : "") . mm
-        autoFisherStatus .= ":" . (StrLen(ss) = 1 ? "0" : "") . ss
-        TooltipText .= autoFisherStatus
+        TooltipText .= "`n" . AutoFisherStatus()
 
         ; Deletion Positions
-        TooltipText .= "`n`n[Mouse Position Stack]"
-        TooltipText .= "`n(" . RX1 . ", " . RY1 . ")"
-        TooltipText .= "`n(" . RX2 . ", " . RY2 . ")"
-        TooltipText .= "`n(" . RX3 . ", " . RY3 . ")"
+        ; TooltipText .= "`n`n[Mouse Position Stack]"
+        ; TooltipText .= "`n(" . RX1 . ", " . RY1 . ")"
+        ; TooltipText .= "`n(" . RX2 . ", " . RY2 . ")"
+        ; TooltipText .= "`n(" . RX3 . ", " . RY3 . ")"
 
         ; DEBUG INFO
 
-        ; TooltipText .= "`n`n`n[DEBUF INFO]"
-        ; TooltipText .= "`nBaseAddr : " . Base
-        ; SetFormat, Integer, H
-        ; TooltipText .= "`nWaterAddr : " . WaterAddr
-        ; SetFormat, Integer, H
-        ; TooltipText .= "`nChocoAddr : " . ChocoAddr
-        ; TooltipText .= "`nPlasmaAddr : " . PlasmaAddr
-        ; TooltipText .= "`nChocoFishing : " . ChocoFishingAddr . " " . ReadMemory(ChocoFishingAddr)
-        ; SetFormat, Integer, D
+        ; TooltipText .= "`n`n" . DebugInfo() 
 
         ; Operation
         TooltipText .= "`n"
         TooltipText .= "`n[F11] : Trun On/Off AutoFisher"
         TooltipText .= "`n[F8] : Trun On/Off Tooltip"
-        TooltipText .= "`n[" . HK_RecordLocation . "] : Push Current Mouse Position into Stack"
+        ; TooltipText .= "`n[" . HK_RecordLocation . "] : Push Current Mouse Position into Stack"
         TooltipText .= "`n[F6] : Close Program"
 
         Tooltip, %TooltipText%, TooltipX, TooltipY
+    }
+    else {
+        ToolTip
     }
 }
