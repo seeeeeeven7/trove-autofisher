@@ -25,6 +25,7 @@ CoordMode, Mouse, Client
 CoordMode, Window, Client
 UpdateTooltip()
 
+
 ; Bind Hotkeys
 HotKey, %HK_SwitchFisher%, L_SwitchFisher
 Hotkey, %HK_SwitchTooltip%, L_SwitchTooltip
@@ -71,29 +72,58 @@ while (True) {
     ; Detect Error
     if (Flag_Fishing and just_throw and !isFishing()) {
         ; Try Destroy
-        if (SomeWindowIsShown()) {
-            ControlSend, , {ESC}, ahk_pid %pid%
-            NatualSleep()
-        }
-        Press("b", pid)
-        NatualSleep()
-        ; Drop Last Item
+        ; if (SomeWindowIsShown()) {
+        ;     ControlSend, , {ESC}, ahk_pid %pid%
+        ;     NatualSleep()
+        ; }
+        ; Press("b", pid)
+        ; NatualSleep()
+        ; ; Drop Last Item
 
-        GetClientSize(Width, Height)
-        ; WinGetPos, X_, Y_, Width_, Height_, ahk_exe trove.exe
-        X0 := max(Width / 1.4, Width - Height / 2, Width - 384)
-        W0 := Width - X0
-        Y0 := Height / 2 - W0
-        H0 := Height - Y0 * 2
-        X1 := X0 + 0.8 * W0
-        Y1 := Y0 + 0.81  * H0
-        X2 := X0 + 0.78 * W0
-        Y2 := Y0 + 0.91 * H0
-        ; MsgBox, %X0% . "," . %Y0%
+        ; GetClientSize(Width, Height)
+        ; ; WinGetPos, X_, Y_, Width_, Height_, ahk_exe trove.exe
+        ; X0 := max(Width / 1.4, Width - Height / 2, Width - 384)
+        ; W0 := Width - X0
+        ; Y0 := Height / 2 - W0
+        ; H0 := Height - Y0 * 2
+        ; X1 := X0 + 0.8 * W0
+        ; Y1 := Y0 + 0.81 * H0
+        ; X2 := X0 + 0.78 * W0
+        ; Y2 := Y0 + 0.91 * H0
+        ; ; MsgBox, %X0% . "," . %Y0%
 
+        ; Random, MouseSpeed, 4, 10
+        ; ; MouseClickDrag, Left, %X1%, %Y1%, %X2%, %Y2%, MouseSpeed
 
-        Random, MouseSpeed, 4, 10
-        MouseClickDrag, Left, %X1%, %Y1%, %X2%, %Y2%, MouseSpeed
+        ; x := 1861
+        ; y := 795 
+        ; lParam := x | (y << 16)
+        ; ; MsgBox, %handle%
+        ; SendMessage, 0x084 , 0x00000000 , %lParam%, ,   ahk_id %handle%   ;NCHITTEST SEND
+        ; SendMessage, 0x020 , 0x00040708 , 0x02040001, , ahk_id %handle%   ;SETCURSOR SEND
+        ; PostMessage, 0x200 , 0x00000000 , %lParam%, ,   ahk_id %handle%   ;MOUSEMOVE POST
+        ; Sleep,100
+        ; PostMessage, 0x201 , 0x00000002 , %lParam%, ,   ahk_id %handle%   ;RBUTTONDOWN POST
+        ; SendMessage, 0x084 , 0x00000000 , %lParam%, ,   ahk_id %handle%   ;NCHITTEST SEND
+        ; SendMessage, 0x020 , 0x00040708 , 0x02050001, , ahk_id %handle%   ;SETCURSOR SEND
+        ; NatualSleep()
+        ; PostMessage, 0x202 , 0x00000000 , %lParam%, ,   ahk_id %handle%   ;RBUTTONUP POST
+
+        ; NatualSleep()
+        ; x := 1861
+        ; y := 725 
+        ; lParam := x | (y << 16)
+        ; SendMessage, 0x084 , 0x00000000 , %lParam%, ,   ahk_id 0x00040708   ;NCHITTEST SEND
+        ; SendMessage, 0x020 , 0x00040708 , 0x02040001, , ahk_id 0x00040708   ;SETCURSOR SEND
+        ; PostMessage, 0x200 , 0x00000000 , %lParam%, ,   ahk_id 0x00040708   ;MOUSEMOVE POST
+        ; Sleep,100
+        ; PostMessage, 0x204 , 0x00000002 , %lParam%, ,   ahk_id 0x00040708   ;RBUTTONDOWN POST
+        ; SendMessage, 0x084 , 0x00000000 , %lParam%, ,   ahk_id 0x00040708   ;NCHITTEST SEND
+        ; SendMessage, 0x020 , 0x00040708 , 0x02050001, , ahk_id 0x00040708   ;SETCURSOR SEND
+        ; PostMessage, 0x205 , 0x00000000 , %lParam%, ,   ahk_id 0x00040708   ;RBUTTONUP POST
+
+        ; ControlClick x1861 y795, , ahk_class SDL_app,,,, D 
+        ; ControlClick x1861 y725, , ahk_class SDL_app,,,, U
         ; MouseMove %X1%, %Y1%, MouseSpeed
         ; MouseClick, Left, %RX3%, %RY3%
         ; Dynamic Delay
