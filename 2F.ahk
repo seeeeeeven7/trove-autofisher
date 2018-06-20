@@ -78,22 +78,29 @@ while (True) {
 
     ; Detect Error
     if (Flag_Fishing and just_throw and !isFishing()) {
+        Random, MouseSpeed, 4, 10
+        ; Move Mouse in Window
+        if (!SomeWindowIsShown()) {
+            Press("b", pid)
+            Random, Wait, 500, 600
+            Sleep, Wait
+        }
+        MouseMove %RX1%, %RX1%, MouseSpeed
         ; Try Destroy
         if (SomeWindowIsShown()) {
             ControlSend, , {ESC}, ahk_pid %pid%
-            Random, Wait, 500, 1000
+            Random, Wait, 500, 600
             Sleep, Wait
         }
         Press("b", pid)
-        Random, Wait, 500, 1000
+        Random, Wait, 500, 600
         Sleep, Wait
         ; Drop Last Item
-        Random, MouseSpeed, 4, 10
         MouseClickDrag, Left, %RX1%, %RY1%, %RX2%, %RY2%, MouseSpeed
-        Random, Wait, 500, 1000
+        Random, Wait, 500, 600
         Sleep, Wait
         MouseMove %RX3%, %RY3%, MouseSpeed
-        Random, Wait, 500, 1000
+        Random, Wait, 500, 600
         Sleep, Wait
         MouseClick, Left, %RX3%, %RY3%    
 
