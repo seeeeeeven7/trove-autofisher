@@ -87,7 +87,7 @@ while (True) {
                 Random, Wait, 500, 600
                 Sleep, Wait
             }
-            MouseMove %RX1%, %RX1%, MouseSpeed
+            MouseMove %RX1%, %RY1%, MouseSpeed
             ; Try Destroy
             if (SomeWindowIsShown()) {
                 ControlSend, , {ESC}, ahk_pid %pid%
