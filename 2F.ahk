@@ -19,6 +19,13 @@ global Flag_Tooltip := true
 global LureCount := 0
 global TotalWaiting := 0
 
+global RX1 := 0
+global RY1 := 0
+global RX2 := 0
+global RY2 := 0
+global RX3 := 0
+global RY3 := 0
+
 ; Show Tooltip
 CoordMode, ToolTip, Screen
 CoordMode, Mouse, Client
@@ -72,13 +79,24 @@ while (True) {
     ; Detect Error
     if (Flag_Fishing and just_throw and !isFishing()) {
         ; Try Destroy
-        ; if (SomeWindowIsShown()) {
-        ;     ControlSend, , {ESC}, ahk_pid %pid%
-        ;     NatualSleep()
-        ; }
-        ; Press("b", pid)
-        ; NatualSleep()
-        ; ; Drop Last Item
+        if (SomeWindowIsShown()) {
+            ControlSend, , {ESC}, ahk_pid %pid%
+            Random, Wait, 500, 1000
+            Sleep, Wait
+        }
+        Press("b", pid)
+        Random, Wait, 500, 1000
+        Sleep, Wait
+        ; Drop Last Item
+        Random, MouseSpeed, 4, 10
+        MouseClickDrag, Left, %RX1%, %RY1%, %RX2%, %RY2%, MouseSpeed
+        Random, Wait, 500, 1000
+        Sleep, Wait
+        MouseMove %RX3%, %RY3%, MouseSpeed
+        Random, Wait, 500, 1000
+        Sleep, Wait
+        MouseClick, Left, %RX3%, %RY3%    
+
 
         ; GetClientSize(Width, Height)
         ; ; WinGetPos, X_, Y_, Width_, Height_, ahk_exe trove.exe
@@ -220,10 +238,10 @@ UpdateTooltip() {
         TooltipText .= "`n" . AutoFisherStatus()
 
         ; Deletion Positions
-        ; TooltipText .= "`n`n[Mouse Position Stack]"
-        ; TooltipText .= "`n(" . RX1 . ", " . RY1 . ")"
-        ; TooltipText .= "`n(" . RX2 . ", " . RY2 . ")"
-        ; TooltipText .= "`n(" . RX3 . ", " . RY3 . ")"
+        TooltipText .= "`n`n[Mouse Position Stack]"
+        TooltipText .= "`n(" . RX1 . ", " . RY1 . ")"
+        TooltipText .= "`n(" . RX2 . ", " . RY2 . ")"
+        TooltipText .= "`n(" . RX3 . ", " . RY3 . ")"
 
         ; DEBUG INFO
 
@@ -233,7 +251,7 @@ UpdateTooltip() {
         TooltipText .= "`n"
         TooltipText .= "`n[F11] : Trun On/Off AutoFisher"
         TooltipText .= "`n[F8] : Trun On/Off Tooltip"
-        ; TooltipText .= "`n[" . HK_RecordLocation . "] : Push Current Mouse Position into Stack"
+        TooltipText .= "`n[" . HK_RecordLocation . "] : Push Current Mouse Position into Stack"
         TooltipText .= "`n[F6] : Close Program"
 
         Tooltip, %TooltipText%, TooltipX, TooltipY
