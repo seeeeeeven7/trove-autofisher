@@ -1,3 +1,4 @@
+global FishAddressBase := "0x00F02BD4"
 global Base := 0
 global WaterAddr := 0
 global ChocoAddr := 0
