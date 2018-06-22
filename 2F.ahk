@@ -18,7 +18,7 @@ global HK_RecordLocation := "F3"
 global HK_Bosskey := "!Q"
 global TooltipX := 100
 global TooltipY := 100
-global World_Moment := 500
+global World_Moment := 100
 ; Global Variables
 global Flag_Fishing := false
 global Flag_Tooltip := true
@@ -60,14 +60,14 @@ while (True) {
         if (isHooked()) {
             ; Wait before pull
             UpdateTooltip()
-            Random, Wait, 1000, 2000
+            Random, Wait, 1000, 1500
             Sleep, Wait
             TotalWaiting += Wait
             ; Pull
             NatualPress("f", pid)
             ; Wait before throw
             UpdateTooltip()
-            Random, Wait, 2000, 3000
+            Random, Wait, 2000, 2500
             Sleep, Wait
             TotalWaiting += Wait
         }
