@@ -7,6 +7,7 @@ global HK_SwitchDestroyer := "F10"
 global HK_SwitchTooltip := "F8"
 global HK_Exit := "F6"
 global HK_RecordLocation := "F3"
+global HK_Bosskey := "!Q"
 
 global TooltipX := 100
 global TooltipY := 100
@@ -17,6 +18,7 @@ global World_Moment := 500
 global Flag_Fishing := false
 global Flag_Tooltip := true
 global Flag_Destroyer := false
+global Flag_Shown := true
 global LureCount := 0
 global TotalWaiting := 0
 
@@ -31,6 +33,7 @@ global RY3 := 0
 CoordMode, ToolTip, Screen
 CoordMode, Mouse, Client
 CoordMode, Window, Client
+DetectHiddenWindows, On
 UpdateTooltip()
 
 ; Bind Hotkeys
@@ -39,6 +42,7 @@ HotKey, %HK_SwitchDestroyer%, L_SwitchDestroyer
 Hotkey, %HK_SwitchTooltip%, L_SwitchTooltip
 Hotkey, %HK_Exit%, L_Exit
 HotKey, %HK_RecordLocation%, L_RecordLocation
+HotKey, %HK_Bosskey%, L_Bosskey
 
 ; World
 global ErrorWaiting := 1000
@@ -121,6 +125,19 @@ L_RecordLocation: ; Record Mouse Location
     RY2 := RY3
     MouseGetPos, RX3, RY3
     UpdateTooltip()
+Return
+
+L_Bosskey: ; Hide / Show Trove
+    global pid
+
+    if (Flag_Shown) {
+        WinHide ahk_exe trove.exe
+        Flag_Shown := false
+    }
+    else {
+        WinShow ahk_exe trove.exe
+        Flag_Shown := true
+    }
 Return
 
 TryDestroyLastItem() {
