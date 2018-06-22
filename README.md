@@ -16,4 +16,4 @@ This work's idea is originally from howar31/Trove-AHK-AutoFish
 
 I rewrite most of its logic and re-found the MPL for chinese version game
 
-Besides, you can use **ALT+Q** as a bosskey functionality
+SECRET: you can use **ALT+Q** as a bosskey functionality
