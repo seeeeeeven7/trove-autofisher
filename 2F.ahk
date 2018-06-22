@@ -1,13 +1,14 @@
-#WinActivateForce
 #Include Memory.ahk
-
+; For ToolTip to display onTop
+#WinActivateForce
+; You can only create single instance
+#SingleInstance force
 ; Require running as administrator
 IF NOT A_IsAdmin
 {
    Run *RunAs "%A_ScriptFullPath%"
    ExitApp
 }
-
 ; Global Constaints
 global HK_SwitchFisher := "F11"
 global HK_SwitchDestroyer := "F10"
@@ -15,12 +16,9 @@ global HK_SwitchTooltip := "F8"
 global HK_Exit := "F6"
 global HK_RecordLocation := "F3"
 global HK_Bosskey := "!Q"
-
 global TooltipX := 100
 global TooltipY := 100
-
 global World_Moment := 500
-
 ; Global Variables
 global Flag_Fishing := false
 global Flag_Tooltip := true
@@ -28,7 +26,6 @@ global Flag_Destroyer := false
 global Flag_Shown := true
 global LureCount := 0
 global TotalWaiting := 0
-
 global RX1 := 0
 global RY1 := 0
 global RX2 := 0
@@ -36,7 +33,7 @@ global RY2 := 0
 global RX3 := 0
 global RY3 := 0
 
-; Show Tooltip
+; Settings
 CoordMode, ToolTip, Screen
 CoordMode, Mouse, Client
 CoordMode, Window, Client
@@ -136,7 +133,6 @@ Return
 
 L_Bosskey: ; Hide / Show Trove
     global pid
-
     if (Flag_Shown) {
         WinHide ahk_exe trove.exe
         Flag_Shown := false
