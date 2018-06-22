@@ -1,6 +1,13 @@
 #WinActivateForce
 #Include Memory.ahk
 
+; Require running as administrator
+IF NOT A_IsAdmin
+{
+   Run *RunAs "%A_ScriptFullPath%"
+   ExitApp
+}
+
 ; Global Constaints
 global HK_SwitchFisher := "F11"
 global HK_SwitchDestroyer := "F10"
