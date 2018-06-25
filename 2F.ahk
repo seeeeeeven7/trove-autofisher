@@ -171,6 +171,8 @@ TryDestroyLastItem() {
         MouseMove %RX3%, %RY3%, MouseSpeed
         NatualSleep()
         MouseClick, Left, %RX3%, %RY3%    
+        ; Give it a little time to process
+        NatualLongSleep()
     }
 }
 
