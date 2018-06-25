@@ -145,10 +145,8 @@ Return
 
 TryDestroyLastItem() {
     global pid
-    ; Get PID of current activated window
-    WinGet, pidn, PID, A
-    ; Only enable destroyer when it's activated and turned on
-    if (pid = pidn and Flag_Destroyer) {
+    ; Only enable destroyer when it's turned on
+    if (Flag_Destroyer) {
         ; Move mouse back in window (So the screen won't rotate)
         Random, MouseSpeed, 4, 10
         if (!SomeWindowIsShown()) {
@@ -156,6 +154,13 @@ TryDestroyLastItem() {
             NatualLongSleep()
         }
         MouseMove %RX3%, %RY3%, MouseSpeed
+        NatualLongSleep()
+        ; Get PID of current activated window
+        WinGet, pidn, PID, A
+        ; Active window in case of some pop-out window
+        if (pid <> pidn) {
+            WinActivate, ahk_pid %pid%
+        }
         NatualLongSleep()
         ; Close all frame, and reopen bag
         if (SomeWindowIsShown()) {
