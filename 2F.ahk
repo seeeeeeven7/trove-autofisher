@@ -18,7 +18,7 @@ global HK_RecordLocation := "F3"
 global HK_Bosskey := "!Q"
 global TooltipX := 100
 global TooltipY := 100
-global World_Moment := 100
+global World_Moment := 200
 ; Global Variables
 global Flag_Fishing := false
 global Flag_Tooltip := true
