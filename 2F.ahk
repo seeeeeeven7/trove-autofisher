@@ -1,14 +1,19 @@
-#Include Memory.ahk
-; For ToolTip to display onTop
-#WinActivateForce
-; You can only create single instance
+; single instance
 #SingleInstance force
-; Require running as administrator
-IF NOT A_IsAdmin
-{
-   Run *RunAs "%A_ScriptFullPath%"
-   ExitApp
+
+; run as administrator
+if (not A_IsAdmin) {
+    Run *RunAs "%A_ScriptFullPath%"
+    ExitApp
 }
+
+; forcefully active window
+#WinActivateForce
+
+; includes
+#Include Memory.ahk
+
+; Require running as administrator
 ; Global Constaints
 global HK_SwitchFisher := "F11"
 global HK_SwitchDestroyer := "F10"

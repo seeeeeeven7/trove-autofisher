@@ -1,13 +1,19 @@
-global FishAddressBase := "0x00F02BD4"
-global Base := 0
-global WaterAddr := 0
-global ChocoAddr := 0
-global LavaAddr := 0
-global PlasmaAddr := 0
-global WaterFishingAddr := 0
-global ChocoFishingAddr := 0
-global LavaFishingAddr := 0
-global PlasmaFishingAddr := 0
+SetMemoryDefaults()
+
+; set global variables / constaints
+SetMemoryDefaults() {
+    global;
+    FishAddressBase := "0x00F02BD4"
+    ProgramMemoryBase := 0
+    WaterAddr := 0
+    ChocoAddr := 0
+    LavaAddr := 0
+    PlasmaAddr := 0
+    WaterFishingAddr := 0
+    ChocoFishingAddr := 0
+    LavaFishingAddr := 0
+    PlasmaFishingAddr := 0
+}
 
 ReadMemory(MADDRESS) {
     global pid
@@ -116,9 +122,8 @@ IsHooked() {
 }
 
 GetFishingArea() {
-    if (ReadMemory(WaterFishingAddr)) {
+    if ReadMemory(WaterFishingAddr)) 
         return "Water"
-    }
     if (ReadMemory(ChocoFishingAddr)) {
         return "Chocolate"
     }
