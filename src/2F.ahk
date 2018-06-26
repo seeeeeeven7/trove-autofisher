@@ -13,7 +13,6 @@ if (not A_IsAdmin) {
 ; includes
 #Include Memory.ahk
 
-; Require running as administrator
 ; Global Constaints
 global HK_SwitchFisher := "F11"
 global HK_SwitchDestroyer := "F10"
@@ -21,6 +20,7 @@ global HK_SwitchTooltip := "F8"
 global HK_Exit := "F6"
 global HK_RecordLocation := "F3"
 global HK_Bosskey := "!Q"
+
 global TooltipX := 100
 global TooltipY := 100
 global World_Moment := 200
@@ -53,59 +53,98 @@ Hotkey, %HK_Exit%, L_Exit
 HotKey, %HK_RecordLocation%, L_RecordLocation
 HotKey, %HK_Bosskey%, L_Bosskey
 
-; World
-global ErrorWaiting := 1000
-while (True) {
+; world
+while True {
+    ; update process's info
     GetProcessInfo()
+    ; give world a moment
+    TryGiveWorldAMoment()
+    ; update Tooltip
+    UpdateTooltip()
+    ; hang on a while
+    Wait(World_Moment, isFishing())
+}
 
-    ; Auto Fishing
-    just_throw := false
-    if (Flag_Fishing) {
-        ; Check
-        if (isHooked()) {
-            ; Wait before pull
-            UpdateTooltip()
-            Random, Wait, 1000, 1500
-            Sleep, Wait
-            TotalWaiting += Wait
-            ; Pull
-            NatualPress("f", pid)
-            ; Wait before throw
-            UpdateTooltip()
-            Random, Wait, 2000, 2500
-            Sleep, Wait
-            TotalWaiting += Wait
+TryGiveWorldAMoment() {
+    ; current waiting time that doubles itself each failure
+    static error_waiting := 1000
+    ; if authofisher is ON
+    if Flag_Fishing {
+        ; fishing status
+        if isFishing() {
+            if isHooked() {
+                ; wait before pull
+                RandomWait(1000, true)
+                ; pull
+                NatualPress("f", pid)
+                ; wait for pulling
+                RandomWait(2000, true)
+            }
         }
-        ; Throw
-        if (Flag_Fishing and !isFishing()) {
+        else {
+            ; throw lure
             NatualPress("f", pid)
             LureCount += 1
-            just_throw := true
+            ; wait a while
+            RandomWait(500, true)
+            ; failure
+            if !isFishing() {
+                ; try destroy last item to get that plot
+                TryDestroyLastItem()
+                ; dynamic delay (to avoid meaningless throw)
+                rest := error_waiting
+                while Flag_Fishing and rest > 0 {
+                    Wait(World_Moment, true)
+                    rest -= World_Moment
+                }
+                ; doubles waiting time each failure
+                error_waiting *= 2
+            }
+            else {
+                error_waiting := 1000
+            }
         }
-    }
-    UpdateTooltip()
-    Sleep, World_Moment
-    if (Flag_Fishing) {
-        TotalWaiting += World_Moment   
-    }
-    ; Detect Error
-    if (Flag_Fishing and just_throw and !isFishing()) {
-        ; Try destroy last item to get 1 plot
-        TryDestroyLastItem()
-        ; Dynamic Delay
-        ErrorWaitingRest := ErrorWaiting
-        while (Flag_Fishing and ErrorWaitingRest > 0) {
-            Sleep, World_Moment
-            TotalWaiting += World_Moment
-            UpdateTooltip()
-            ErrorWaitingRest -= World_Moment
-        }
-        ErrorWaiting *= 2
-    }
-    else {
-        ErrorWaiting := 1000
     }
 }
+
+TryDestroyLastItem() {
+    global pid
+    ; Only enable destroyer when it's turned on
+    if (Flag_Destroyer) {
+        ; Move mouse back in window (So the screen won't rotate)
+        Random, MouseSpeed, 4, 10
+        if (!SomeWindowIsShown()) {
+            NatualPress("b", pid)
+            RandomWait(500, false)
+        }
+        MouseMove %RX3%, %RY3%, MouseSpeed
+        RandomWait(500, false)
+        ; Get PID of current activated window
+        WinGet, pidn, PID, A
+        ; Active window in case of some pop-out window
+        if (pid <> pidn) {
+            WinActivate, ahk_pid %pid%
+        }
+        RandomWait(500, false)
+        ; Close all frame, and reopen bag
+        if (SomeWindowIsShown()) {
+            ControlSend, , {ESC}, ahk_pid %pid%
+            RandomWait(500, false)
+        }
+        NatualPress("b", pid)
+        RandomWait(500, false)
+        ; Drop Last Item
+        MouseClickDrag, Left, %RX1%, %RY1%, %RX2%, %RY2%, MouseSpeed
+        RandomWait(500, false)
+        ; Confirm
+        MouseMove %RX3%, %RY3%, MouseSpeed
+        RandomWait(100, false)
+        MouseClick, Left, %RX3%, %RY3%    
+        ; Give it a little time to process
+        RandomWait(500, false)
+    }
+}
+
 Return
 
 L_Exit:
@@ -148,59 +187,26 @@ L_Bosskey: ; Hide / Show Trove
     }
 Return
 
-TryDestroyLastItem() {
-    global pid
-    ; Only enable destroyer when it's turned on
-    if (Flag_Destroyer) {
-        ; Move mouse back in window (So the screen won't rotate)
-        Random, MouseSpeed, 4, 10
-        if (!SomeWindowIsShown()) {
-            NatualPress("b", pid)
-            NatualLongSleep()
-        }
-        MouseMove %RX3%, %RY3%, MouseSpeed
-        NatualLongSleep()
-        ; Get PID of current activated window
-        WinGet, pidn, PID, A
-        ; Active window in case of some pop-out window
-        if (pid <> pidn) {
-            WinActivate, ahk_pid %pid%
-        }
-        NatualLongSleep()
-        ; Close all frame, and reopen bag
-        if (SomeWindowIsShown()) {
-            ControlSend, , {ESC}, ahk_pid %pid%
-            NatualLongSleep()
-        }
-        NatualPress("b", pid)
-        NatualLongSleep()
-        ; Drop Last Item
-        MouseClickDrag, Left, %RX1%, %RY1%, %RX2%, %RY2%, MouseSpeed
-        NatualLongSleep()
-        ; Confirm
-        MouseMove %RX3%, %RY3%, MouseSpeed
-        NatualSleep()
-        MouseClick, Left, %RX3%, %RY3%    
-        ; Give it a little time to process
-        NatualLongSleep()
+; operations that feels more normal(randomly)
+
+Wait(time, record) {
+    UpdateTooltip()
+    Sleep, %time%
+    if record {
+        TotalWaiting += time
     }
 }
 
-NatualSleep() {
-    Random, SleepTime, 66, 122
-    Sleep, %SleepTime%
-}
-
-NatualLongSleep() {
-    Random, SleepTime, 555, 666
-    Sleep, %SleepTime%
+RandomWait(time, record) {
+    Random, rtime, floor(time * 3 / 4), floor(time * 5 / 4)
+    Wait(rtime, record)
 }
 
 NatualPress(npbtn, nppid) {
     ControlSend, , {Blind}{%npbtn% down}, ahk_pid %nppid%
-    NatualSleep()
+    RandomWait(100, false)
     ControlSend, , {Blind}{%npbtn% up}, ahk_pid %nppid%
-    NatualSleep()
+    RandomWait(100, false)
 }
 
 ; ToolTip Generation

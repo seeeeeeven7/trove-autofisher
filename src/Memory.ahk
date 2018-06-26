@@ -2,17 +2,9 @@ SetMemoryDefaults()
 
 ; set global variables / constaints
 SetMemoryDefaults() {
-    global;
-    FishAddressBase := "0x00F02BD4"
-    ProgramMemoryBase := 0
-    WaterAddr := 0
-    ChocoAddr := 0
-    LavaAddr := 0
-    PlasmaAddr := 0
-    WaterFishingAddr := 0
-    ChocoFishingAddr := 0
-    LavaFishingAddr := 0
-    PlasmaFishingAddr := 0
+    global
+    processBaseAddress := 0
+    fishingBiasAddress := "0x00F02BD4"
 }
 
 ReadMemory(MADDRESS) {
@@ -46,16 +38,10 @@ GetProcessInfo() {
     global handle := hwnds
 
     ; Get Memory Address Info
-    global Base := GetProcessBaseAddress()
-    global WaterAddr := AddrW()
-    global WaterFishingAddr := WaterAddr - 0xAA0
-    global ChocoAddr := AddrC()
-    global ChocoFishingAddr := ChocoAddr - 0xAA0
-    global LavaAddr := AddrL()
-    global LavaFishingAddr := LavaAddr - 0x11B8
-    global PlasmaAddr := AddrP()
-    global PlasmaFishingAddr := PlasmaAddr - 0x1674
+    global processBaseAddress := GetProcessBaseAddress()
 }
+
+; game status check
 
 GameIsRunning() {
     global pid
@@ -63,9 +49,9 @@ GameIsRunning() {
 }
 
 SomeWindowIsShown() {
-    global Base
+    global processBaseAddress
     if (GameIsRunning()) {
-        pointerBase := Base + 0x00F27C3C
+        pointerBase := processBaseAddress + 0x00F27C3C
         y1 := ReadMemory(pointerBase)
         y2 := ReadMemory(y1 + 0x28)
         return y2 > 0 
@@ -73,65 +59,100 @@ SomeWindowIsShown() {
     return false
 }
 
-AddrW() {
-    pointerBase := Base + FishAddressBase
+; fishing status check
+
+IsFishing() {
+    return IsFishingInWater() or IsFishingInChocolate() or IsFishingInLava() or IsFishingInPlasma()
+}
+
+IsHooked() {
+    return IsHookedInWater() or IsHookedInChocolate() or IsHookedInLava() or IsHookedInPlasma()
+}
+
+GetFishingArea() {
+    if IsFishingInWater()
+        return "Water"
+    if IsFishingInChocolate()
+        return "Chocolate"
+    if IsFishingInLava()
+        return "Lava"
+    if IsFishingInPlasma()
+        return "Plasma"
+    return "Unknown"
+}
+
+; fishing status check / water
+
+BiasAddressOfHookedInWater() {
+    global processBaseAddress, fishingBiasAddress
+    pointerBase := processBaseAddress + fishingBiasAddress
     y1 := ReadMemory(pointerBase)
     y2 := ReadMemory(y1 + 0xE0)
     y3 := ReadMemory(y2 + 0xC8)
     Return y3 + 0x78
 }
 
-AddrC() {
-    pointerBase := Base + FishAddressBase
+IsHookedInWater() {
+    Return ReadMemory(BiasAddressOfHookedInWater())
+}
+
+IsFishingInWater() {
+    Return ReadMemory(BiasAddressOfHookedInWater() - 0xAA0)
+}
+
+; fishing status check / chocolate
+
+BiasAddressOfHookedInChocolate() {
+    global processBaseAddress, fishingBiasAddress
+    pointerBase := processBaseAddress + fishingBiasAddress
     y1 := ReadMemory(pointerBase)
     y2 := ReadMemory(y1 + 0xE0)
     y3 := ReadMemory(y2 + 0x324)
     Return y3 + 0x78
 }
 
-AddrL() {
-    pointerBase := Base + FishAddressBase
+IsHookedInChocolate() {
+    Return ReadMemory(BiasAddressOfHookedInChocolate())
+}
+
+IsFishingInChocolate() {
+    Return ReadMemory(BiasAddressOfHookedInChocolate() - 0xAA0)
+}
+
+; fishing status check / lava
+
+BiasAddressOfHookedInLava() {
+    global processBaseAddress, fishingBiasAddress
+    pointerBase := processBaseAddress + fishingBiasAddress
     y1 := ReadMemory(pointerBase)
     y2 := ReadMemory(y1 + 0xE0)
     y3 := ReadMemory(y2 + 0x324)
     Return y3 + 0x2D8
 }
 
-AddrP() {
-    pointerBase := Base + FishAddressBase
+IsHookedInLava() {
+    Return ReadMemory(BiasAddressOfHookedInLava())
+}
+
+IsFishingInLava() {
+    Return ReadMemory(BiasAddressOfHookedInLava() - 0x11B8)
+}
+
+; fishing status check / plasma
+
+BiasAddressOfHookedInPlasma() {
+    global processBaseAddress, fishingBiasAddress
+    pointerBase := processBaseAddress + fishingBiasAddress
     y1 := ReadMemory(pointerBase)
     y2 := ReadMemory(y1 + 0xE0)
     y3 := ReadMemory(y2 + 0x7E0)
     Return y3 + 0x78
 }
 
-IsFishing() {
-    SignW := ReadMemory(WaterFishingAddr)
-    SignC := ReadMemory(ChocoFishingAddr)
-    SignL := ReadMemory(LavaFishingAddr)
-    SignP := ReadMemory(PlasmaFishingAddr)
-    return SignW or SignC or SignL or SignP
+IsHookedInPlasma() {
+    Return ReadMemory(BiasAddressOfHookedInPlasma())
 }
 
-IsHooked() {
-    SignW := ReadMemory(WaterAddr)
-    SignC := ReadMemory(ChocoAddr)
-    SignL := ReadMemory(LavaAddr)
-    SignP := ReadMemory(PlasmaAddr)
-    return SignW or SignC or SignL or SignP
-}
-
-GetFishingArea() {
-    if ReadMemory(WaterFishingAddr)) 
-        return "Water"
-    if (ReadMemory(ChocoFishingAddr)) {
-        return "Chocolate"
-    }
-    if (ReadMemory(LavaFishingAddr)) {
-        return "Lava"
-    }
-    if (ReadMemory(PlasmaFishingAddr)) {
-        return "Plasma"
-    }
-    return "Unknown"
+IsFishingInPlasma() {
+    Return ReadMemory(BiasAddressOfHookedInPlasma() - 0x1674)
 }
