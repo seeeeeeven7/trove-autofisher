@@ -107,7 +107,7 @@ TryGiveWorldAMoment() {
     }
     else {
         if GetAvatarHP() * 4 <= GetAvatarHPMAX() {
-            TryRecover()
+            ; TryRecover()
         }
     }
 }
