@@ -2,7 +2,7 @@
 
 This is an auto-fisher for Trove.
 
-![demo](demo.png)
+![screen-shot](screen-shot.png)
 
 **NOTICE**: It's designed for **only chinese version** of game.
 
