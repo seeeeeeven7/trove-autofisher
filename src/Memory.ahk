@@ -63,12 +63,13 @@ SomeWindowIsShown() {
 
 BiasAddressOfAvatarHP() {
     global processBaseAddress
-    pointerBase := processBaseAddress + 0x00F2A470
+    pointerBase := processBaseAddress + 0x00F27C2C
     y1 := ReadMemory(pointerBase)
-    y2 := ReadMemory(y1 + 0x78)
-    y3 := ReadMemory(y2 + 0x20C)
-    y4 := ReadMemory(y3 + 0x8)
-    return y4 + 0x10C
+    y2 := ReadMemory(y1 + 0xB8)
+    y3 := ReadMemory(y2 + 0x4)
+    y4 := ReadMemory(y3 + 0xC)
+    y5 := ReadMemory(y4 + 0x14)
+    return y5 + 0x12C
 }
 
 GetAvatarHP() {

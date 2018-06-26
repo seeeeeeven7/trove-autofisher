@@ -107,7 +107,7 @@ TryGiveWorldAMoment() {
     }
     else {
         if GetAvatarHP() * 4 <= GetAvatarHPMAX() {
-            ; TryRecover()
+            TryRecover()
         }
     }
 }
@@ -275,7 +275,7 @@ UpdateTooltip() {
     if (Flag_Tooltip) {
         TooltipText := "[YoRHa No.2 Type F]"
         TooltipText .= "`nGame : " . (GameIsRunning() ? "Running" : "Not Running")
-        TooltipText .= "`nHP : " GetAvatarHP() "/" GetAvatarHPMAX()
+        TooltipText .= "`nHP : " (GetAvatarHPMAX() = 0 ? "Loading" : GetAvatarHP() "/" GetAvatarHPMAX())
         TooltipText .= "`n" . TooltipAutoFisherInfo()
         TooltipText .= "`n" . TooltipAutoDestroyerInfo()
         ; TooltipText .= "`n" . TooltipDebugInfo() 
