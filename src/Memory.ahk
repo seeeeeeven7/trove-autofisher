@@ -59,7 +59,27 @@ SomeWindowIsShown() {
     return false
 }
 
-; fishing status check
+; avatar status
+
+BiasAddressOfAvatarHP() {
+    global processBaseAddress
+    pointerBase := processBaseAddress + 0x00F2A470
+    y1 := ReadMemory(pointerBase)
+    y2 := ReadMemory(y1 + 0x78)
+    y3 := ReadMemory(y2 + 0x20C)
+    y4 := ReadMemory(y3 + 0x8)
+    return y4 + 0x10C
+}
+
+GetAvatarHP() {
+    return ReadMemory(BiasAddressOfAvatarHP())
+}
+
+GetAvatarHPMAX() {
+    return ReadMemory(BiasAddressOfAvatarHP() + 0x4)
+}
+
+; fishing status
 
 IsFishing() {
     return IsFishingInWater() or IsFishingInChocolate() or IsFishingInLava() or IsFishingInPlasma()
