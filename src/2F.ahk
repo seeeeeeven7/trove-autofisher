@@ -107,26 +107,6 @@ TryGiveWorldAMoment() {
             }
         }
     }
-    else {
-        currentHP := GetAvatarHP()
-        currentHPMAX := GetAvatarHPMAX()
-        if (currentHP > 0 and currentHPMAX < 10000000 and currentHP * 4 <= currentHPMAX) {
-            TryRecover()
-        }
-    }
-}
-
-TryRecover() {
-    static cooldown = 0
-    if (cooldown = 0) 
-    {
-        NatualPress("q", pid)
-        cooldown := 2
-    }
-    else 
-    {
-        cooldown -= 1
-    }
 }
 
 TryDestroyLastItem() {
