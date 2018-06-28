@@ -23,7 +23,7 @@ global HK_Bosskey := "!Q"
 
 global TooltipX := 100
 global TooltipY := 100
-global World_Moment := 200
+global World_Moment := 500
 ; Global Variables
 global Flag_Fishing := false
 global Flag_Tooltip := true
@@ -74,7 +74,7 @@ TryGiveWorldAMoment() {
         if isFishing() {
             if isHooked() {
                 ; wait before pull
-                RandomWait(1000, true)
+                RandomWait(750, true)
                 ; pull
                 NatualPress("f", pid)
                 ; wait for pulling
@@ -102,6 +102,8 @@ TryGiveWorldAMoment() {
             }
             else {
                 error_waiting := 1000
+                ; wait a while
+                RandomWait(500, true)
             }
         }
     }
