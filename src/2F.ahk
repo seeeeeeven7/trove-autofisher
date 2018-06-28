@@ -115,7 +115,16 @@ TryGiveWorldAMoment() {
 }
 
 TryRecover() {
-    NatualPress("q", pid)
+    static cooldown = 0
+    if (cooldown = 0) 
+    {
+        NatualPress("q", pid)
+        cooldown := 2
+    }
+    else 
+    {
+        cooldown -= 1
+    }
 }
 
 TryDestroyLastItem() {
