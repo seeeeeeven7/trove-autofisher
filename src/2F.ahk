@@ -132,7 +132,7 @@ TryRecover() {
 TryDestroyLastItem() {
     global pid
     ; Only enable destroyer when it's turned on
-    if (Flag_Destroyer) {
+    if (Flag_Destroyer and GameIsRunning()) {
         ; Move mouse back in window (So the screen won't rotate)
         Random, MouseSpeed, 4, 10
         if (!SomeWindowIsShown()) {
