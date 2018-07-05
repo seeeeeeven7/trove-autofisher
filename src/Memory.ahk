@@ -4,7 +4,7 @@ SetMemoryDefaults()
 SetMemoryDefaults() {
     global
     processBaseAddress := 0
-    fishingBiasAddress := "0x00F02BD4"
+    fishingBiasAddress := "0x00DE5DE0"
 }
 
 ReadMemory(MADDRESS) {

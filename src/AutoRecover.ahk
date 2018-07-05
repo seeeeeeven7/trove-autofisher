@@ -46,3 +46,8 @@ NatualPress(npbtn, nppid) {
     ControlSend, , {Blind}{%npbtn% down}, ahk_pid %nppid%
     ControlSend, , {Blind}{%npbtn% up}, ahk_pid %nppid%
 }
+
+F4::
+    hp := GetAvatarHP()
+    MsgBox, %hp%
+Return
