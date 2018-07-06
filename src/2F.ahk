@@ -31,6 +31,7 @@ global Flag_Destroyer := false
 global Flag_Shown := true
 global LureCount := 0
 global TotalWaiting := 0
+global ErrorWaiting := 1000
 global RX1 := 0
 global RY1 := 0
 global RX2 := 0
@@ -90,16 +91,16 @@ TryGiveWorldAMoment() {
                 ; try destroy last item to get that plot
                 TryDestroyLastItem()
                 ; dynamic delay (to avoid meaningless throw)
-                rest := error_waiting
+                rest := ErrorWaiting
                 while Flag_Fishing and rest > 0 {
                     Wait(World_Moment, true)
                     rest -= World_Moment
                 }
                 ; doubles waiting time each failure
-                error_waiting *= 2
+                ErrorWaiting *= 2
             }
             else {
-                error_waiting := 1000
+                ErrorWaiting := 1000
                 ; wait a while
                 RandomWait(500, true)
             }
