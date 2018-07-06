@@ -67,7 +67,7 @@ TryGiveWorldAMoment() {
     ; current waiting time that doubles itself each failure
     static error_waiting := 1000
     ; if authofisher is ON
-    if Flag_Fishing {
+    if (GameIsRunning() and Flag_Fishing)  {
         ; fishing status
         if isFishing() {
             if isHooked() {
