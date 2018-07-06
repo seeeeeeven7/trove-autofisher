@@ -49,14 +49,17 @@ GameIsRunning() {
 }
 
 SomeWindowIsShown() {
+    return GetOpenedWindowCount() > 0
+}
+
+GetOpenedWindowCount() {
     global processBaseAddress
     if (GameIsRunning()) {
-        pointerBase := processBaseAddress + 0x00F27C3C
+        pointerBase := processBaseAddress + 0x00E0EB6C
         y1 := ReadMemory(pointerBase)
-        y2 := ReadMemory(y1 + 0x28)
-        return y2 > 0 
+        return ReadMemory(y1 + 0x28)
     }
-    return false
+    return 0
 }
 
 ; avatar status

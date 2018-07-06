@@ -35,8 +35,6 @@ global RX1 := 0
 global RY1 := 0
 global RX2 := 0
 global RY2 := 0
-global RX3 := 0
-global RY3 := 0
 
 ; Settings
 CoordMode, ToolTip, Screen
@@ -119,15 +117,15 @@ TryDestroyLastItem() {
             NatualPress("b", pid)
             RandomWait(500, false)
         }
-        MouseMove %RX3%, %RY3%, MouseSpeed
+        MouseMove %RX2%, %RY2%, MouseSpeed
         RandomWait(500, false)
         ; Get PID of current activated window
         WinGet, pidn, PID, A
         ; Active window in case of some pop-out window
         if (pid <> pidn) {
             WinActivate, ahk_pid %pid%
+            RandomWait(500, false)
         }
-        RandomWait(500, false)
         ; Close all frame, and reopen bag
         if (SomeWindowIsShown()) {
             ControlSend, , {ESC}, ahk_pid %pid%
@@ -136,12 +134,14 @@ TryDestroyLastItem() {
         NatualPress("b", pid)
         RandomWait(500, false)
         ; Drop Last Item
-        MouseClickDrag, Left, %RX1%, %RY1%, %RX2%, %RY2%, MouseSpeed
+        MouseMove %RX1%, %RY1%, MouseSpeed
+        RandomWait(100, false)
+        MouseClick, Middle, %RX1%, %RY1%
         RandomWait(500, false)
         ; Confirm
-        MouseMove %RX3%, %RY3%, MouseSpeed
+        MouseMove %RX2%, %RY2%, MouseSpeed
         RandomWait(100, false)
-        MouseClick, Left, %RX3%, %RY3%    
+        MouseClick, Left, %RX2%, %RY2%    
         ; Give it a little time to process
         RandomWait(500, false)
     }
@@ -171,9 +171,7 @@ Return
 L_RecordLocation: ; Record Mouse Location
     RX1 := RX2
     RY1 := RY2
-    RX2 := RX3
-    RY2 := RY3
-    MouseGetPos, RX3, RY3
+    MouseGetPos, RX2, RY2
     UpdateTooltip()
 Return
 
@@ -240,7 +238,6 @@ TooltipAutoDestroyerInfo() {
     info := "`n[AutoDestroyer : " . (Flag_Destroyer ? "ON" : "OFF") . "]"
     info .= "`n(" . RX1 . ", " . RY1 . ")"
     info .= " -> (" . RX2 . ", " . RY2 . ")"
-    info .= " -> (" . RX3 . ", " . RY3 . ")"
     info .= "`nUse [" . HK_RecordLocation . "] to record mouse positions"
     return info
 }
